@@ -5,6 +5,7 @@ module Wasp.Util.StrongPath
     splitAbsExtension,
     splitRelExtension,
     findAllFilesWithSuffix,
+    toPosixFilePath,
   )
 where
 
@@ -14,6 +15,8 @@ import Data.List (isSuffixOf)
 import qualified Path as P
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP
+import qualified System.FilePath as FP
+import qualified System.FilePath.Posix as FP.Posix
 
 stripProperPrefix :: SP.Path' SP.Abs (SP.Dir a) -> SP.Path' SP.Abs (SP.File b) -> Maybe (SP.Path' (SP.Rel a) (SP.File b))
 stripProperPrefix base file =
@@ -38,3 +41,9 @@ splitRelExtension path =
 
 findAllFilesWithSuffix :: String -> [SP.Path p r (SP.File f)] -> [SP.Path p r (SP.File f)]
 findAllFilesWithSuffix extension = filter ((extension `isSuffixOf`) . SP.toFilePath)
+
+-- To prevent file path like '..\..\' from being generated, we convert the path to a posix file path.
+-- Especially important for Windows users. Another option would be escaping the backslashes,
+-- but I prefer to have '../../' in index.ts rather than '..\\..\\'.
+toPosixFilePath :: SP.Path' b t -> FilePath
+toPosixFilePath = FP.Posix.joinPath . FP.splitDirectories . SP.toFilePath

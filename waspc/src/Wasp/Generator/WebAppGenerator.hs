@@ -20,7 +20,6 @@ import StrongPath
     relfile,
     (</>),
   )
-import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -51,6 +50,7 @@ import Wasp.Project.Common
     waspProjectDirFromAppComponentDir,
   )
 import Wasp.Util ((<++>))
+import Wasp.Util.StrongPath (toPosixFilePath)
 
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do
@@ -79,7 +79,7 @@ genAppTsConfigJson spec = do
       (C.asWebAppFile [relfile|tsconfig.app.json|])
       ( Just $
           object
-            [ "srcTsConfigPath" .= SP.fromRelFile srcTsConfigPath
+            [ "srcTsConfigPath" .= toPosixFilePath srcTsConfigPath
             ]
       )
   where

@@ -4,6 +4,7 @@ module FilePath.Extra
 where
 
 import Control.Exception (assert)
+import qualified System.FilePath as FP
 import qualified System.FilePath.Posix as FPP
 
 -- | For given posix path P, returns posix path P', such that (terminal pseudocode incoming)
@@ -19,4 +20,5 @@ reversePosixPath path
         FPP.joinPath $ map (const "..") parts
   where
     parts :: [String]
-    parts = filter (/= ".") $ FPP.splitDirectories path
+    -- Change FP.Posix.splitDirectories to FP.splitDirectories to support Windows paths as well.
+    parts = filter (/= ".") $ FP.splitDirectories path

@@ -31,6 +31,7 @@ import Wasp.Project.Common
     generatedCodeDirInDotWaspDir,
   )
 import Wasp.Util ((<++>))
+import Wasp.Util.StrongPath (toPosixFilePath)
 
 genVite :: AppSpec -> Generator [FileDraft]
 genVite spec =
@@ -62,11 +63,11 @@ genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile tmplData
           "vitest"
             .= object
               [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
-                "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
+                "excludeWaspArtefactsPattern" .= (toPosixFilePath dotWaspDirInWaspProjectDir FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
     vitestSetupFiles =
-      [ SP.fromRelFile $
+      [ toPosixFilePath $
           dotWaspDirInWaspProjectDir
             </> generatedCodeDirInDotWaspDir
             </> webAppRootDirInProjectRootDir
@@ -88,6 +89,6 @@ genViteTsconfigJson = return $ C.mkTmplFdWithData [relfile|tsconfig.vite.json|] 
     tmplData = object ["includePaths" .= includePaths]
 
     includePaths =
-      SP.fromRelFile viteConfigTmplFile : vitePluginPaths
+      toPosixFilePath viteConfigTmplFile : vitePluginPaths
 
-    vitePluginPaths = map (SP.fromRelFile . snd) vitePlugins
+    vitePluginPaths = map (toPosixFilePath . snd) vitePlugins

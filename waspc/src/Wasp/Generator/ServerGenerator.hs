@@ -25,12 +25,10 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    fromRelDir,
     reldirP,
     relfile,
     (</>),
   )
-import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -63,6 +61,7 @@ import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProject
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
+import Wasp.Util.StrongPath (toPosixFilePath)
 
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
@@ -113,7 +112,7 @@ genTsConfigJson spec = do
       ( Just $
           object
             [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion),
-              "srcTsConfigPath" .= SP.fromRelFile srcTsConfigPath
+              "srcTsConfigPath" .= toPosixFilePath srcTsConfigPath
             ]
       )
   where
@@ -201,7 +200,7 @@ genNodemon =
   return $
     C.mkTmplFdWithData
       [relfile|nodemon.json|]
-      (Just $ object ["relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath])
+      (Just $ object ["relativeUserSrcDirPath" .= toPosixFilePath relativeUserSrcDirPath])
   where
     relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir SourceExternalCodeDir) =
       waspProjectDirFromAppComponentDir </> srcDirInWaspProjectDir

@@ -83,6 +83,7 @@ import qualified Wasp.SemanticVersion.Version as SV
   ( Version (major),
   )
 import Wasp.Util ((<++>))
+import Wasp.Util.StrongPath (toPosixFilePath)
 
 buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 buildSdk projectRootDir = do
@@ -410,7 +411,7 @@ genDevIndex =
   return $
     C.mkTmplFdWithData
       [relfile|dev/index.ts|]
-      (object ["waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir])
+      (object ["waspProjectDirFromWebAppDir" .= toPosixFilePath waspProjectDirFromWebAppDir])
   where
     waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir) =
       waspProjectDirFromAppComponentDir
