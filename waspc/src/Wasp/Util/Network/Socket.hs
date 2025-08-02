@@ -13,6 +13,7 @@ import Foreign.C.Error (Errno (..), eADDRINUSE, eCONNREFUSED)
 import GHC.IO.Exception (IOException (..))
 import qualified Network.Socket as S
 import UnliftIO.Exception (bracket, throwIO, try)
+import Data.List (isInfixOf)
 
 -- | Tests if port is accepting connections.
 -- Does so by trying to connect via socket to it (connection is closed immediately).
@@ -35,7 +36,9 @@ checkIfPortIsAcceptingConnections sockAddr = do
             else throwIO e
   where
     createSocket = createIPv4TCPSocket
-    isConnRefusedException e = (Errno <$> ioe_errno e) == Just eCONNREFUSED
+    isConnRefusedException e = ((Errno <$> ioe_errno e) == Just eCONNREFUSED) ||
+      -- On windows, the error code is empty, only description is set.
+      isInfixOf "Connection refused" (ioe_description e)
 
 -- | True if port is in use, False if it is free, exception in all other cases.
 checkIfPortIsInUse :: S.SockAddr -> IO Bool
